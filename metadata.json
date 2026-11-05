@@ -1,0 +1,6 @@
+{
+  "name": "HaatBazaar - Premier Online Marketplace of Nepal",
+  "description": "Nepal's complete multi-vendor e-commerce marketplace featuring customer shopping, seller portal, admin management, eSewa/Khalti payments, and real-time order tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
