@@ -10,6 +10,13 @@ import {
   X,
   Phone,
   Mail,
+  MapPin,
+  ChevronDown,
+  Sparkles,
+  LogOut,
+  SlidersHorizontal,
+  RefreshCw,
+  CheckCircle2
 } from 'lucide-react';
 import { useMarketplace } from '../context/MarketplaceContext';
 
@@ -24,17 +31,22 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, onOpenAuthModal }) => {
   const {
     currentUser,
+    users,
+    switchUser,
+    logout,
     cart,
     wishlist,
     categories,
     settings,
     products,
+    resetAllData
   } = useMarketplace();
 
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showRoleSwitcher, setShowRoleSwitcher] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
 
@@ -85,6 +97,62 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, onOpenAu
               <Mail className="w-3.5 h-3.5 text-emerald-400" />
               {settings.supportEmail}
             </span>
+            {/* Quick Role Switcher for instant testing */}
+            <div className="relative">
+              <button
+                onClick={() => setShowRoleSwitcher(!showRoleSwitcher)}
+                className="bg-emerald-800 hover:bg-emerald-700 text-white font-semibold px-2 py-0.5 rounded-sm flex items-center gap-1 text-[11px] transition-colors"
+                title="Switch role for testing"
+              >
+                <Shield className="w-3 h-3 text-emerald-300" />
+                <span>Role: {currentUser?.role?.toUpperCase() || 'GUEST'}</span>
+                <ChevronDown className="w-3 h-3" />
+              </button>
+
+
+              {showRoleSwitcher && (
+                <div className="absolute right-0 mt-1 w-60 bg-white text-stone-800 rounded-lg shadow-xl border border-stone-200 py-2 z-50">
+                  <div className="px-3 py-1 border-b border-stone-100 text-[11px] font-bold text-stone-500 uppercase tracking-wider">
+                    Instant Demo Switcher
+                  </div>
+                  {users.map((u) => (
+                    <button
+                      key={u.id}
+                      onClick={() => {
+                        switchUser(u.id);
+                        setShowRoleSwitcher(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-emerald-50 transition-colors ${
+                        currentUser?.id === u.id ? 'bg-emerald-50 font-bold text-emerald-900' : ''
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span>{u.fullName}</span>
+                          {currentUser?.id === u.id && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />}
+                        </div>
+                        <div className="text-[10px] text-stone-500 capitalize">{u.role} &bull; {u.email}</div>
+                      </div>
+                      <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-stone-100 text-stone-700">
+                        {u.role}
+                      </span>
+                    </button>
+                  ))}
+                  <div className="border-t border-stone-100 mt-1 pt-1 px-3">
+                    <button
+                      onClick={() => {
+                        resetAllData();
+                        setShowRoleSwitcher(false);
+                      }}
+                      className="text-[11px] text-rose-600 hover:text-rose-700 flex items-center gap-1.5 py-1"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      Reset to Default Catalog
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -199,7 +267,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, onOpenAu
 
           {/* Right Action Icons: Dashboards, Cart, Wishlist, Account */}
           <div className="flex items-center gap-3">
-            {/* Seller / Admin Portal Link */}
+            {/* Seller Portal Link */}
             {currentUser?.role === 'seller' ? (
               <button
                 onClick={() => onNavigate('seller-dashboard')}
@@ -271,9 +339,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, onOpenAu
                 )}
               </div>
               <span className="text-xs font-bold hidden sm:inline">
-                {totalCartCount > 0
-  ? Rs. ${cart.reduce((s, i) => s + i.selectedPrice * i.quantity, 0).toLocaleString('en-IN')}
-  : 'Cart'}
+                {totalCartCount > 0 ? Rs. ${cart.reduce((s, i) => s + i.selectedPrice * i.quantity, 0).toLocaleString('en-IN')} : 'Cart'}
               </span>
             </button>
 
@@ -420,30 +486,26 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, onOpenAu
               <span>Customer Account &amp; Orders</span>
               <User className="w-4 h-4 text-emerald-800" />
             </button>
-            {currentUser?.role === 'seller' && (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onNavigate('seller-dashboard');
-                }}
-                className="w-full text-left py-2 px-3 rounded-lg bg-emerald-50 font-semibold text-xs text-emerald-900 flex items-center justify-between"
-              >
-                <span>Seller Central</span>
-                <Store className="w-4 h-4 text-emerald-800" />
-              </button>
-            )}
-            {currentUser?.role === 'admin' && (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onNavigate('admin-dashboard');
-                }}
-                className="w-full text-left py-2 px-3 rounded-lg bg-purple-50 font-semibold text-xs text-purple-900 flex items-center justify-between"
-              >
-                <span>Administrator Portal</span>
-                <Shield className="w-4 h-4 text-purple-800" />
-              </button>
-            )}
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onNavigate('seller-dashboard');
+              }}
+              className="w-full text-left py-2 px-3 rounded-lg bg-emerald-50 font-semibold text-xs text-emerald-900 flex items-center justify-between"
+            >
+              <span>Seller Central</span>
+              <Store className="w-4 h-4 text-emerald-800" />
+            </button>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onNavigate('admin-dashboard');
+              }}
+              className="w-full text-left py-2 px-3 rounded-lg bg-purple-50 font-semibold text-xs text-purple-900 flex items-center justify-between"
+            >
+              <span>Administrator Portal</span>
+              <Shield className="w-4 h-4 text-purple-800" />
+            </button>
           </div>
         </div>
       )}
