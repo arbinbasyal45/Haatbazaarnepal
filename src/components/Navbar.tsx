@@ -272,8 +272,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, activeView, onOpenAu
               </div>
               <span className="text-xs font-bold hidden sm:inline">
                 {totalCartCount > 0
-                  ? Rs. ${cart.reduce((s, i) => s + i.selectedPrice * i.quantity, 0).toLocaleString('en-IN')}
-                  : 'Cart'}
+  ? Rs. ${cart.reduce((s, i) => s + i.selectedPrice * i.quantity, 0).toLocaleString('en-IN')}
+  : 'Cart'}
               </span>
             </button>
 
